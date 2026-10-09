@@ -43,6 +43,7 @@ pytest                           # unit + integration tests (Postgres tests need
 - [Running it](#running-it)
 - [Repository layout](#repository-layout)
 - [Known limitations](#known-limitations)
+- [How this repository was built](#how-this-repository-was-built)
 
 ---
 
@@ -359,6 +360,10 @@ scripts/safety_scan.py pre-publication secret and denylist scan
 - Lexical grounding checks reject some correct paraphrases and cannot catch a grounded-but-misleading summary, such as citing the right passage and drawing the wrong conclusion.
 - Token counts are approximated (about four characters per token); use the provider's tokenizer where exact budgets matter.
 - No authentication layer: `Scope` is trusted as given. In a real service it must come from a verified identity, never from the request body.
+
+## How this repository was built
+
+I used AI-assisted development as part of the implementation workflow, but I reviewed the result, decided what to keep, and required the repository's tests and checks to pass before publication.
 
 ## License
 

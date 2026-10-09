@@ -1,5 +1,7 @@
 # safe-rag-reference
 
+[![ci](https://github.com/ratchetnu/safe-rag-reference/actions/workflows/ci.yml/badge.svg)](https://github.com/ratchetnu/safe-rag-reference/actions/workflows/ci.yml)
+
 This project shows how I would build an AI assistant that answers from approved documents instead of trusting the model to know everything.
 
 The assistant looks up the relevant passages first, answers only from those passages, and shows which ones it used. This pattern is called retrieval-augmented generation (RAG). Around it sit the safety checks I would want before putting something like this in front of real users. Each company only sees its own documents. Instructions hidden inside documents are treated with suspicion. Every answer must cite its sources, and answers are checked before anyone sees them. There are limits on size and cost, and the system has a plan for when the model is down. A test suite fails the build if any safety check stops working.

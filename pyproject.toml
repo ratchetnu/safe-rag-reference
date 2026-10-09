@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "safe-rag-reference"
+version = "0.1.0"
+description = "Reference implementation of a retrieval-augmented generation pipeline with layered safety controls and an offline evaluation harness."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.1", "pgvector>=0.3"]
+anthropic = ["anthropic>=1.0"]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "build>=1.2",
+    "psycopg[binary]>=3.1",
+    "pgvector>=0.3",
+]
+
+[project.scripts]
+saferag = "saferag.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/saferag"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/saferag/store/schema.sql" = "saferag/store/schema.sql"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "PL"]
+ignore = [
+    "PLR0913",  # explicit keyword arguments are clearer than config bags here
+    "PLR2004",  # thresholds are named in config; tests use literal values
+    "PLR0911",
+    "PLR0912",
+    "PLC0415",  # optional dependencies (psycopg, anthropic) are imported lazily on purpose
+    "SIM905",   # a whitespace-split word list is easier to read than a long list literal
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "PLC0415", "PLR0917"]
+"scripts/**" = ["S603", "S607"]
+"src/saferag/evaluation/harness.py" = ["PLR0915"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+packages = ["saferag"]
+
+[[tool.mypy.overrides]]
+module = ["pgvector.*", "anthropic.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "postgres: requires a PostgreSQL+pgvector database (SAFERAG_TEST_DATABASE_URL)",
+    "live: calls a paid model API; never runs in default CI",
+]

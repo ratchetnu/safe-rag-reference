@@ -1,0 +1,33 @@
+name: live-eval
+
+# OPTIONAL and NOT a required check. Calls a paid model API through the example
+# adapter. Manual trigger only; never runs on push or PR. Results are
+# non-deterministic, measured on synthetic data, and not production measurements.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    environment: live-eval   # protect with required reviewers in repository settings
+    env:
+      SAFERAG_ENABLE_LIVE: "1"
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,anthropic]"
+      - name: Live safety checks
+        run: pytest -m live
+      - name: Live evaluation (critical gates still enforced)
+        run: saferag eval --provider anthropic --allow-quality-regression --output reports
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-eval-report
+          path: reports/
